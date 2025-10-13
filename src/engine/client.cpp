@@ -40,13 +40,14 @@ bool connected(bool attempt, bool local)
     return curpeer || (attempt && connpeer) || (local && haslocalclients());
 }
 
-bool isvalidurl(char *href){
+bool isvalidurl(char *href)
+{
     int len = strlen(href);
     if(len < 7) return false;
 
-    if(strncmp("http://", href, 7) == 0) return true;
+    if(!strncmp("http://", href, 7)) return true;
 
-    if(len >= 8 && strncmp("https://", href, 8) == 0) return true;
+    if(len >= 8 && !strncmp("https://", href, 8)) return true;
 
     return false;
 }
@@ -76,12 +77,12 @@ ICOMMAND(0, connectedport, "", (),
     intret(address ? address->port : -1);
 });
 
-ICOMMAND(0, open_url, "s", (char *href),
+ICOMMAND(0, openurl, "s", (char *href),
 {
     if(isvalidurl(href)) SDL_OpenURL(href);
 });
 
-ICOMMAND(0, set_clipboard, "s", (char *data),
+ICOMMAND(0, setclipboard, "s", (char *data),
 {
     SDL_SetClipboardText(data);
 });
