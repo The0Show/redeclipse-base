@@ -65,6 +65,16 @@ ICOMMAND(0, connectedport, "", (),
     intret(address ? address->port : -1);
 });
 
+ICOMMAND(0, open_url, "s", (char *href),
+{
+    SDL_OpenURL(href);
+});
+
+ICOMMAND(0, set_clipboard, "s", (char *data),
+{
+    SDL_SetClipboardText(data);
+});
+
 VARR(connectstatus, 0);
 
 void abortconnect(bool msg)
