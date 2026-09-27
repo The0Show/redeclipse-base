@@ -1,10 +1,5 @@
 #include "musicplaylist.h"
 
-SVAR(0, musicthemeplaylist, "P_THEME");
-SVAR(0, musicprogressplaylist, "P_PROGRESS");
-SVAR(0, musicgameplayplaylist, "P_GAMEPLAY");
-SVAR(0, musicintermissionplaylist, "P_INTERMISSION");
-
 Slotmanager<playlist> music_playlists;
 typedef Slotmanager<playlist>::Handle PlaylistHandle;
 
@@ -60,6 +55,12 @@ bool clearplaylist(const char *id)
 
 musicslot pickfromplaylist(const char *id)
 {
+    if(!playlistexists(id))
+    {
+        conoutf(colourred, "Playlist %s does not exist!", id);
+        return { 0 };
+    }
+
     int index = -1;
     playlist &playlist = getplaylist(id, index);
 
@@ -79,9 +80,10 @@ musicslot pickfromplaylist(const char *id)
     return track;
 }
 
-int test_playfromplaylist(const char *id)
+int playfromplaylist(const char *id)
 {
     musicslot slot = pickfromplaylist(id);
+    
     playmusic(slot.name, true);
     return 0;
 }
@@ -95,5 +97,5 @@ ICOMMAND(0, clearplaylist, "s", (char *id),
 );
 
 ICOMMAND(0, musicplaylist, "s", (char *id),
-    test_playfromplaylist(id);
+    playfromplaylist(id);
 );

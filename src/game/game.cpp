@@ -1,5 +1,6 @@
 #define CPP_GAME_MAIN 1
 #include "game.h"
+#include "musicplaylist.h"
 
 namespace game
 {
@@ -214,6 +215,12 @@ namespace game
     VARF(IDF_PERSIST, musicedit, -1, 0, 8, stopmapmusic()); // same as above for editmode, -1 = use musictype
     SVARF(IDF_PERSIST, musicdir, "sounds/music", stopmapmusic());
     SVARF(IDF_MAP, mapmusic, "", stopmapmusic());
+    SVARF(IDF_MAP, mapmusicplaylist, "", stopmapmusic());
+    
+    SVAR(IDF_CLIENT, musicthemeplaylist, "P_THEME");
+    SVAR(IDF_CLIENT, musicprogressplaylist, "P_PROGRESS");
+    SVAR(IDF_CLIENT, musicgameplayplaylist, "P_GAMEPLAY");
+    SVAR(IDF_CLIENT, musicintermissionplaylist, "P_INTERMISSION");
 
     VAR(IDF_PERSIST, thirdperson, 0, 0, 1);
     VAR(IDF_PERSIST, dynlighteffects, 0, 2, 2);
@@ -3916,36 +3923,39 @@ namespace game
         fademusic(force ? 0 : 1, type >= 9);
         nexttype = -1;
 
-        if(type >= 6) smartmusic((type - 6) % 3);
-        else if((type == 2 || type == 5 || (!playmusic(mapmusic, type < 4) && (type == 1 || type == 4))) && *musicdir)
+        // if(type >= 6) smartmusic((type - 6) % 3);
+        if(type >= 6)
         {
-            vector<char *> files;
-            listfiles(musicdir, NULL, files);
-            while(!files.empty())
+            char *playlist = NULL;
+            switch((type - 6) % 3)
             {
-                int r = rnd(files.length());
-                if(files[r] && files[r][0])
-                {
-                    bool goodext = false;
-                    int flen = strlen(files[r]);
-                    loopk(SOUND_EXTS)
-                    {
-                        if(!soundexts[k] || !*soundexts[k]) continue;
-                        int slen = strlen(soundexts[k]), offset = flen - slen;
-                        if(offset > 0 && !strcasecmp(&files[r][offset], soundexts[k]))
-                        {
-                            goodext = true;
-                            break;
-                        }
-                    }
-                    if(!goodext) continue;
+                case 0: playlist = musicthemeplaylist; break;
+                case 1: playlist = musicprogressplaylist; break;
+                case 2: playlist = musicintermissionplaylist; break;
+            };
 
-                    defformatstring(musicfile, "%s/%s", musicdir, files[r]);
-                    if(playmusic(musicfile, type < 4)) break;
+            playmusic(pickfromplaylist(playlist).name, true);
+        }
+        else
+        {
+            bool fallback = true;
+            if(type == 1 || type == 4)
+            {
+                if(playlistexists(mapmusicplaylist))
+                {
+                    fallback = !playmusic(pickfromplaylist(mapmusicplaylist).name, type < 4);
                 }
-                files.remove(r);
+
+                if(fallback)
+                {
+                    fallback = !playmusic(mapmusic, type < 4);
+                }
             }
-            files.deletearrays();
+
+            if(fallback)
+            {
+                playmusic(pickfromplaylist(musicgameplayplaylist).name, type < 4);
+            }
         }
 
         string title, artist, album;

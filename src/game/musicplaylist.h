@@ -10,3 +10,6 @@ struct playlist {
     int max_incidence;
     vector<musicslot> slots;
 };
+
+extern bool playlistexists(const char *id);
+extern musicslot pickfromplaylist(const char *id);
