@@ -339,6 +339,7 @@ CLIENT_OBJS = \
     game/entities.o \
     game/game.o \
     game/hud.o \
+    game/musicplaylist.o \
     game/physics.o \
     game/projs.o \
     game/scoreboard.o \
