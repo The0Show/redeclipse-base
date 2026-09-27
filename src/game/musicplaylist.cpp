@@ -89,8 +89,15 @@ int playfromplaylist(const char *id)
 }
 
 ICOMMAND(0, loadmusic, "ssi", (char *id, char *name, int *incidence),
+{
+    if(*incidence < 0 || *incidence > 1024)
+    {
+        conoutf(colourred, "Incidence must be between 0 and 1024 (got %i)", *incidence);
+        intret(-1);
+        return;
+    }
     intret(addmusic(id, name, *incidence));
-);
+});
 
 ICOMMAND(0, clearplaylist, "s", (char *id),
     intret(clearplaylist(id));
